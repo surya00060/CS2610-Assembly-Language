@@ -1,0 +1,34 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x000000000000a000       0x36
+ *(.text)
+ .text          0x000000000000a000       0x36 Lab1_3.o
+                0x000000000000a000                _start
+
+.data           0x000000000000a038       0x14
+ *(.data)
+ .data          0x000000000000a038       0x14 Lab1_3.o
+
+.bss            0x000000000000a04c        0x4
+ *(.bss)
+ .bss           0x000000000000a04c        0x4 Lab1_3.o
+ *(COMMON)
+
+kama
+ *(kama)
+LOAD Lab1_3.o
+LOAD /usr/lib/libc.a
+OUTPUT(Lab1_3.out elf32-i386)
+
+.stab           0x0000000000000000       0xc0
+ .stab          0x0000000000000000       0xc0 Lab1_3.o
+
+.stabstr        0x0000000000000000        0xa
+ .stabstr       0x0000000000000000        0xa Lab1_3.o
