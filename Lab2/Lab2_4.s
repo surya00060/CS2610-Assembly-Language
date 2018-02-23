@@ -21,53 +21,77 @@ section .text
 	mov eax, [GS:C2]				; Pushing the Number of Columns
 	push eax
 
+	mov eax, M3
+	push eax
 
 	CALL MATMUL					; Calling the Function
-	add esp,24					; To pop the data passed by stack
+	add esp,28					; To pop the data passed by stack
 
 	int     0x80
 
 MATMUL:
 	pushad
-
-	mov ecx, [GS:esp + 48]   ; ARRAY
-	mov edx, [GS:esp + 36]	 ; TRANSPOSE
-	mov edi, [GS:esp + 44]	 ; R
-	mov eax, [GS:esp + 40]	 ; C
+	;mov ebx, [GS:esp + 36] ; M3
+	;mov ecx, [GS:esp + 40]   ; C2
+	;mov edx, [GS:esp + 44]	 ; R2
+	;mov edi, [GS:esp + 48]	 ; M2
+	;mov eax, [GS:esp + 52]	 ; C1
+	;mov ecx, [GS:esp + 56]   ; R1
+	;mov edx, [GS:esp + 60]	 ; M1
 	
-	mov ebp, 0 				 ; Loop Variable i for loop ROW
+	
+	mov edi, 0 				 ; Loop Variable i for loop ROW
 	mov esi, 0 				 ; Loop Variable j for loop COLUMN
+	mov ebp, 0 				; K
 	
-	ROW:
-		cmp ebp, edi					;checks if i < R
+	L1:
+		cmp edi	,[GS:esp + 56]				;checks if i < R
 		jge END							; if not goes to end
 		mov esi, 0						; else sets j =0 
-		jmp COLUMN 						; Starts loop COLUMN
+		jmp L2						; Starts loop COLUMN
 
-	COLUMN:
-		cmp esi, eax 					; checks if j < C
-		jl SWAP							; If So starts the TRANSPOSE
-		inc ebp							; else i++
-		jmp ROW 						; and Jumps to loop ROW
+	L2:
+		cmp esi, [GS:esp + 40]					; checks if j < C
+		jl L3							; If So starts the TRANSPOSE
+		inc edi							; else i++
+		jmp L1 						; and Jumps to loop ROW
 
 	
 										; Position (i,j) in 2D Matrix is in position ( C*i + j ) in a 1D Array.
-	SWAP:
-		imul eax, ebp					;eax = C*i
-		add eax, esi   					;eax = C*i + j
+	L3:
+		mov ebp, 0
+		mov eax, [GS:esp + 36]
+		mov ebx, [GS:esp + 40]
+		imul ebx, edi					;eax = C*i
+		add ebx, esi   					;eax = C*i + j
+		imul ebx, 2
+		add eax, ebx
+		mov [GS:eax] , 0 
 
-		mov bx,[GS: ecx + eax*2 ]		;accesing element (i,j) of MATRIX
+	LO3:
+		cmp ebp, [GS:esp + 52]
+		jl MUL
+		inc esi
+		jmp L2 
 
-		imul edi , esi 					;edi = R*j
-		add edi , ebp 					;edi = R*j + i
+	MUL:
+		mov ecx, [GS:esp + 60]
+		mov ebx, [GS:esp + 52]
+		imul ebx, edi
+		add ebx, ebp						;j++
 
-		mov [GS: edx + edi*2] , bx 		;accesing corresponding position in TRANSPOSE and storing the value 
+		mov edx,[GS:ecx+ ebx*2 ]
 
-		mov eax, [GS:esp + 40]			;eax = R Since we are short of registers we use same registers to multiple opearations
-		mov edi, [GS:esp + 44]			;edi = C
+		mov ecx, [GS:esp + 48]
+		mov ebx, [GS:esp + 40]
+		imul ebx, ebp
+		add ebx, esi
 
-		inc esi 						;j++
-		jmp COLUMN 						;Goto COLUMN
+		add edx,[GS:ecx + ebx*2 ]
+		mov [GS:eax] , edx 
+
+		inc ebp						;Goto COLUMN
+		jmp LO3
 
 	END:
 		popad
@@ -76,11 +100,11 @@ MATMUL:
 
 
 section .data
-	M1:		dw 1,2,3,4,5
-	R1:		dd 3
-	C1:		dd 5
-	M2:		dw 1,2,3,4,5
+	M1:		dw 1,2,3,4,5,6
+	R1:		dd 2
+	C1:		dd 3
+	M2:		dw 1,1,1,1,1,1
 	R2:		dd 3
-	C2:		dd 5
+	C2:		dd 2
 section .bss
-	M3 resw 15
+	M3 resw 4
