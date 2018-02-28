@@ -1,0 +1,34 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x000000000000a000       0x49
+ *(.text)
+ .text          0x000000000000a000       0x49 P1.o
+                0x000000000000a000                _start
+
+.data           0x000000000000a04c        0xa
+ *(.data)
+ .data          0x000000000000a04c        0xa P1.o
+
+.bss            0x000000000000a058        0x4
+ *(.bss)
+ .bss           0x000000000000a058        0x4 P1.o
+ *(COMMON)
+
+kama
+ *(kama)
+LOAD P1.o
+LOAD /usr/lib/libc.a
+OUTPUT(P1.out elf32-i386)
+
+.stab           0x0000000000000000      0x144
+ .stab          0x0000000000000000      0x144 P1.o
+
+.stabstr        0x0000000000000000        0x6
+ .stabstr       0x0000000000000000        0x6 P1.o
