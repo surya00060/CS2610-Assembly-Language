@@ -1,0 +1,31 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x000000000000a000     0x4000
+ *(.text)
+ .text          0x000000000000a000     0x4000 mat.o
+
+.data
+ *(.data)
+
+.bss
+ *(.bss)
+ *(COMMON)
+
+kama
+ *(kama)
+LOAD mat.o
+LOAD /usr/lib/libc.a
+OUTPUT(mat.out elf32-i386)
+
+.stab           0x0000000000000000     0x88bc
+ .stab          0x0000000000000000     0x88bc mat.o
+
+.stabstr        0x0000000000000000        0x7
+ .stabstr       0x0000000000000000        0x7 mat.o

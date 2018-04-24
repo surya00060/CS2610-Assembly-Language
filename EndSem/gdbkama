@@ -1,0 +1,2 @@
+nasm -g -f elf  $1.s 
+ld -T prot_test.ld $1.o  /usr/lib/libc.a -o $1.out -Map $1.map 
